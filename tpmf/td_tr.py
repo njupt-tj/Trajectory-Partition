@@ -8,7 +8,7 @@ from point import Point
 from read_data import read
 
 '''
-DP算法，误差度量是PED(垂直欧式距离）
+TD-TR算法，误差度量是SED(时间同步距离）
 '''
 
 
@@ -21,7 +21,7 @@ def dp_compress(points, feature_points, max_value):
         max_vertical_distance = 0
         key_point_index = 0
         while index < end_index:
-            curr_distance = distances.perpendicular_distance(points[start_index], points[index], points[end_index])
+            curr_distance = distances.sed_distance(points[start_index], points[index], points[end_index])
             if curr_distance >= max_vertical_distance:
                 max_vertical_distance = curr_distance
                 key_point_index = index
@@ -48,11 +48,11 @@ def trajectory_partition(points):
 # -------------------------------------------------------------------------------
 if __name__ == '__main__':
     # 文件路径
-    path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\Data_4.0\9"
+    path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\Data_4.0\0"
     # 文件保存路径
-    save_dir = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\DPFeature_Trajectory\9"
-    time_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\Time\DPtime9.csv"
-    size_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\NumberPoints\DP9.csv"
+    save_dir = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\TDTRFeature_Trajectory\0"
+    time_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\Time\TDTRtime0.csv"
+    size_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\NumberPoints\TDTR0.csv"
     file_list = os.listdir(path)
     # 按时间顺序读取文件
     file_list.sort(key=lambda fn: os.path.getatime(path + "\\" + fn))

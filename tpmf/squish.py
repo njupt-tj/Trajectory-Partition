@@ -108,7 +108,7 @@ if __name__ == '__main__':
         # 测试轨迹的个数
         if j == 0:
             break
-    # 传入参数：points:数据  0.2:压缩率
+    # 传入参数：5:压缩比
     result = squish(5)
     for point in result:
         print(point.get_id())

@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-import math
+import numpy as np
 import os
 
 import distances
@@ -39,7 +39,7 @@ class PointWithSED:
         return self.__sed
 
     def get_pi(self):
-        return self.get_pi()
+        return self.__pi
 
     def __lt__(self, other):
         return self.__sed < other.get_sed()
@@ -47,16 +47,12 @@ class PointWithSED:
 
 # 更新邻居节点的pi值
 def update(min_index, min_priority):
-    buffer_sed[min_index - 1].set_pi(math.max(min_priority, buffer_sed[min_index - 1].get_pi()))
-    buffer_sed[min_index + 1].set_pi(math.max(min_priority, buffer_sed[min_index + 1].get_pi()))
-    pre_id = buffer_sed[min_index - 1].get_id()
-    succ_id = buffer_sed[min_index + 1].get_id()
+    buffer_sed[min_index - 1].set_pi(np.maximum(min_priority, buffer_sed[min_index - 1].get_pi()))
+    buffer_sed[min_index + 1].set_pi(np.maximum(min_priority, buffer_sed[min_index + 1].get_pi()))
     if min_index - 2 >= 0:
-        ppre_id = buffer_sed[min_index - 2].get_id()
-        adjust_priority(points[ppre_id], points[pre_id], points[succ_id])
+        adjust_priority(min_index-2, min_index-1, min_index+1)
     if min_index + 2 < len(buffer_sed):
-        ssucc_id = buffer_sed[min_index + 2].get_id()
-        adjust_priority(points[pre_id], points[succ_id], points[ssucc_id])
+        adjust_priority(min_index-1, min_index+1, min_index+2)
     # 删除优先级最小的点
     buffer_sed.remove(buffer_sed[min_index])
 
@@ -65,7 +61,7 @@ def update(min_index, min_priority):
 def find_mini_priority():
     min_sed = buffer_sed[0].get_sed()
     min_index = 0
-    for i in rangge(1, len(buffer_sed)):
+    for i in range(1, len(buffer_sed)):
         if (buffer_sed[i].get_sed() < min_sed):
             min_sed = buffer_sed[i].get_sed()
             min_index = i
@@ -74,7 +70,7 @@ def find_mini_priority():
 
 # 调整优先级
 def adjust_priority(cur_index, pre_index, ppre_index):
-    if pre_id < 0 or ppre_id < 0:
+    if pre_index < 0 or ppre_index < 0:
         return
     pre_id = buffer_sed[pre_index].get_id()
     ppre_id = buffer_sed[ppre_index].get_id()
@@ -87,7 +83,7 @@ def adjust_priority(cur_index, pre_index, ppre_index):
 # commpression_ratio:压缩率
 def squish(cmp_ratio, sed_error):
     size = len(points)
-    capacity = size / compression_ratio  # 缓冲区大小
+    capacity = int(size / cmp_ratio)  # 缓冲区大小
     i = 0
     while i < size:
         if (i / cmp_ratio) >= capacity:
@@ -107,7 +103,7 @@ def squish(cmp_ratio, sed_error):
             update(min_index, min_priority)
         i += 1
     min_index = find_mini_priority()
-    min_priority = buffer_sed[min_index2].get_sed()
+    min_priority = buffer_sed[min_index].get_sed()
     # 未达到sed_error重复移除最小优先权的点
     while (min_priority <= sed_error):
         update(min_index, min_priority)
@@ -135,7 +131,7 @@ if __name__ == '__main__':
         # 测试轨迹的个数
         if j == 0:
             break
-    # 传入参数：points:数据  0.2:压缩率
+    # 传入参数：5:压缩比  10:sed误差
     buffer_sed = []
     squish(5, 10)
     for pointwithSED in buffer_sed:

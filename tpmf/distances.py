@@ -60,4 +60,4 @@ def sed_distance(left_point, middle_point, right_point):
     new_y = left_point.get_y() + (right_point.get_y() - left_point.get_y()) * time_ratio
     x_diff = middle_point.get_x() - new_x
     y_diff = middle_point.get_y() - new_y
-    return math.sqrt(x_diff * x_diff + y_diff * y_diff)
+    return math.sqrt(x_diff * x_diff + y_diff * y_diff)*1000

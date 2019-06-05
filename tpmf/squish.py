@@ -40,9 +40,10 @@ class PointWithSED:
 
 # points:GPS点的个数
 # commpression_ratio:压缩率
-def squish(points, compression_ratio):
+def squish(compression_ratio):
     size = len(points)
-    buffer_size = (int)(size * compression_ratio)  # 缓冲区大小
+    buffer_size = int(size / compression_ratio)  # 缓冲区大小
+    print(buffer_size)
     buffer_sed = PriorityQueue()
     compressed_points = []
     compressed_points.append(points[0])
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     # 文件目录路径
     path = r"F:\dataset\rawData\0"
     file_list = os.listdir(path)
-    file_list.sort(key=lambda fn: os.path.getatime(path + "\\" + fn))
+    file_list.sort(key=lambda x: x[10:-5])
     # 读取每个文件的轨迹数据
     for i in range(len(file_list)):
         tradata.append(read(path, file_list[i]))
@@ -108,6 +109,6 @@ if __name__ == '__main__':
         if j == 0:
             break
     # 传入参数：points:数据  0.2:压缩率
-    result = squish(points, 0.2)
+    result = squish(5)
     for point in result:
         print(point.get_id())

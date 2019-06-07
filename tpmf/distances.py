@@ -61,3 +61,10 @@ def sed_distance(left_point, middle_point, right_point):
     x_diff = middle_point.get_x() - new_x
     y_diff = middle_point.get_y() - new_y
     return math.sqrt(x_diff * x_diff + y_diff * y_diff)*1000
+
+#线段与x轴的夹角
+def angle(first_point,second_point):
+    x_diff=second_point.get_x()-first_point.get_x()
+    y_diff=second_point.get_y()-first_point.get_y()
+    angle=math.atan(y_diff/x_diff)
+    return angle

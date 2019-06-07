@@ -11,6 +11,7 @@ Trajectory Compression on the Go
 '''
 
 
+#没有编号的点
 class PointWithoutId:
     def __init__(self, x_coordinate, y_coordinate):
         self.__x = x_coordinate
@@ -23,6 +24,7 @@ class PointWithoutId:
         return self.__y
 
 
+#线段类
 class LineSegment:
     def __init__(self, start_p, end_p):
         self.__start_p = start_p

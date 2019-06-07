@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*-
-import distances
-from point import Point
 import math
+
+import distances
 import numpy as np
+from point import Point
 
 '''
 Bounded Quadrant System: Error-bounded
@@ -90,6 +91,7 @@ class BoundingBox:
         return [nearest_dis, farthest_dis]
 
 
+# 最小角度和最大角度的边界线
 class BoundingLines:
     def __init__(self, origin_p):
         self.__origin_p = origin_p
@@ -134,6 +136,7 @@ class BoundingLines:
         return lower_boundingline, upper_boundingline
 
 
+# 获取嵌入距离
 def get_intersection_distance(lower_boundingline, upper_boundingline, cur_linesegment):
     l1 = lower_boundingline[0]
     l2 = lower_boundingline[1]
@@ -148,6 +151,7 @@ def get_intersection_distance(lower_boundingline, upper_boundingline, cur_linese
     return [l1_ls_dis, l2_ls_dis, u1_ls_dis, u2_ls_dis]
 
 
+# 获取线段的与x轴的角度
 def get_linesegment_angle(cur_linesegment):
     return distances.angle(cur_linesegment.get_start(), cur_linesegment.get_end())
 
@@ -217,7 +221,7 @@ def is_not_same_quadrant(cur_linesegment, bqs):
     return get_quadrant(start_point) == get_quadrant(end_point) == get_quadrant(first_point)
 
 
-# 计算偏差
+# 计算偏差(包括lower bouned 和upper bouned)
 def calc_deviation(origin_p, cur_linesegment, bqs):
     b = BoundingLines(origin_p)
     min_max_angles = b.min_max_angle(bqs)
@@ -247,6 +251,7 @@ def calc_deviation(origin_p, cur_linesegment, bqs):
     return d_lb, d_ub
 
 
+# 重新计算bqs中的点与当前线段的距离
 def recalc_deviation(bqs, cur_linesegment):
     max_distance = 0
     start_p = cur_linesegment.get_start()
@@ -271,7 +276,7 @@ def bqs(deviation_thr):
         else:
             e = i
             # 求bqs的个数
-            if len(buffered_points) >0:
+            if len(buffered_points) > 0:
                 cur_linesegment = LineSegment(points[s], points[e])
                 bqss = calc_bqs_numbers()
                 max_d_lb = 0

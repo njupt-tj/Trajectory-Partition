@@ -1,9 +1,11 @@
 # -*- coding:utf-8 -*-
 import math
+import os
 
 import distances
 import numpy as np
 from point import Point
+from read_data import read
 
 '''
 Bounded Quadrant System: Error-bounded
@@ -11,7 +13,7 @@ Trajectory Compression on the Go
 '''
 
 
-#没有编号的点
+# 没有编号的点
 class PointWithoutId:
     def __init__(self, x_coordinate, y_coordinate):
         self.__x = x_coordinate
@@ -24,7 +26,7 @@ class PointWithoutId:
         return self.__y
 
 
-#线段类
+# 线段类
 class LineSegment:
     def __init__(self, start_p, end_p):
         self.__start_p = start_p
@@ -99,8 +101,8 @@ class BoundingLines:
         self.__origin_p = origin_p
 
     def min_max_angle(self, bqs):
-        min_angle = math.pi
-        max_angle = 0
+        min_angle = 2 * math.pi
+        max_angle = -2 * math.pi
         min_angle_point = None
         max_angle_point = None
         for point in bqs:
@@ -111,30 +113,46 @@ class BoundingLines:
             if angle > max_angle:
                 max_angle = angle
                 max_angle_point = point
-        return [min_angle_point, max_angle_point]
+        return [min_angle, min_angle_point, max_angle, max_angle_point]
 
-    def get_lower_boundingline(self, min_angle_p, min_y, max_x):
+    def get_lower_boundingline(self, min_angle_p, min_y, max_x, min_x):
         lower_k = (min_angle_p.get_y() - self.__origin_p.get_y()) / (min_angle_p.get_x() - self.__origin_p.get_x())
         lower_b = min_angle_p.get_y() - lower_k * min_angle_p.get_x()
-        l1_x = (min_y - lower_b) / lower_k
-        l1 = PointWithoutId(l1_x, min_y)
-        l2_y = lower_k * max_x + lower_b
-        l2 = PointWithoutId(max_x, l2_y)
+        if lower_k == 0:
+            l1_x = min_x
+            l1_y = lower_b
+            l2_x = max_x
+            l2_y = lower_b
+        else:
+            l1_x = (min_y - lower_b) / lower_k
+            l1_y = min_y
+            l2_x = max_x
+            l2_y = lower_k * max_x + lower_b
+        l1 = PointWithoutId(l1_x, l1_y)
+        l2 = PointWithoutId(l2_x, l2_y)
         return [l1, l2]
 
-    def get_upper_boundingline(self, max_angle_p, min_x, max_y):
+    def get_upper_boundingline(self, max_angle_p, min_x, max_y, max_x):
         upper_k = (max_angle_p.get_y() - self.__origin_p.get_y()) / (max_angle_p.get_x() - self.__origin_p.get_x())
-        upper_b = max_angle_p.get_y() - lower_k * max_angle_p.get_x()
-        u1_y = min_x * upper_k + upper_b
-        u1 = PointWithoutId(min_x, u1_y)
-        u2_x = (max_y - upper_b) / upper_k
-        u2 = PointWithoutId(u2_x, max_y)
+        upper_b = max_angle_p.get_y() - upper_k * max_angle_p.get_x()
+        if upper_k == 0:
+            u1_x = min_x
+            u1_y = upper_b
+            u2_x = max_x
+            u2_y = upper_b
+        else:
+            u1_x = min_x
+            u1_y = min_x * upper_k + upper_b
+            u2_x = (max_y - upper_b) / upper_k
+            u2_y = max_y
+        u1 = PointWithoutId(u1_x, u1_y)
+        u2 = PointWithoutId(u2_x, u2_y)
         return [u1, u2]
 
     def get_boundinglines(self, min_y, max_x, min_x, max_y, bqs):
         result = self.min_max_angle(bqs)
-        lower_boundingline = self.get_lower_boundingline(result[0], min_y, max_x)
-        upper_boundingline = self.get_upper_boundingline(result[1], min_x, max_y)
+        lower_boundingline = self.get_lower_boundingline(result[1], min_y, max_x, min_x)
+        upper_boundingline = self.get_upper_boundingline(result[3], min_x, max_y, max_x)
         return lower_boundingline, upper_boundingline
 
 
@@ -171,7 +189,7 @@ def get_corner_point(bqs):
 
 
 # 计算bqs数量
-def calc_bqs_numbers():
+def calc_bqs_numbers(buffered_points):
     first_quadrant = []
     second_quadrant = []
     third_quadrant = []
@@ -231,24 +249,21 @@ def calc_deviation(origin_p, cur_linesegment, bqs):
     corner_points = get_corner_point(bqs)
     boundlines = b.get_boundinglines(corner_points[1], corner_points[2], corner_points[0], corner_points[3], bqs)
     intersection_distances = get_intersection_distance(boundlines[0], boundlines[1], cur_linesegment)
-    min_lower_dis = np.minimum(intersection_distances[0:2])
-    min_upper_dis = np.minimum(intersection_distances[2:])
-    box = BoundingBox(origin_p, corner_points)
+    min_lower_dis = np.minimum(intersection_distances[0], intersection_distances[1])
+    min_upper_dis = np.minimum(intersection_distances[2], intersection_distances[3])
+    box = BoundingBox(origin_p, corner_points[0], corner_points[1], corner_points[2], corner_points[3])
     near_far_corner_distances = box.near_far_corner_distance(cur_linesegment)
     max_near_corner_disatnces = np.maximum(near_far_corner_distances[0], near_far_corner_distances[1])
-    d_lb = 0
-    d_ub = 0
-    if (cur_linesegment_angle >= min_max_angles[0] and cur_linesegment_angle <= min_max_angles[1]) or \
-            (cur_linesegment_angle > min_max_angles[1] or cur_linesegment_angle < min_max_angles[0]):
+    if (cur_linesegment_angle >= min_max_angles[0] and cur_linesegment_angle <= min_max_angles[2]) or \
+            (cur_linesegment_angle > min_max_angles[2] or cur_linesegment_angle < min_max_angles[0]):
         d_lb = np.maximum(np.maximum(min_lower_dis, min_upper_dis), max_near_corner_disatnces)
         intersection_distances.sort()
         d_ub = intersection_distances[-1]
     elif is_not_same_quadrant(cur_linesegment_angle, bqs):
         min_upper_dis = np.minimum(intersection_distances[2], intersection_distances[1])
-        intersection_distances.sort()
-        d_ub = intersection_distances[-1]
         corners_distance = box.corner_distance(cur_linesegment)
         corners_distance.sort()
+        d_lb = np.maximum(np.maximum(min_lower_dis, min_upper_dis), corners_distance[0])
         d_ub = corners_distance[-1]
     return d_lb, d_ub
 
@@ -268,6 +283,7 @@ def recalc_deviation(bqs, cur_linesegment):
 # BQS压缩算法，传入参数为偏差阈值
 def bqs(deviation_thr):
     s = 0
+    buffered_points = []
     compressed_points.append(points[s])
     i = 1
     while i < len(points):
@@ -280,7 +296,7 @@ def bqs(deviation_thr):
             # 求bqs的个数
             if len(buffered_points) > 0:
                 cur_linesegment = LineSegment(points[s], points[e])
-                bqss = calc_bqs_numbers()
+                bqss = calc_bqs_numbers(buffered_points)
                 max_d_lb = 0
                 max_d_ub = 0
                 for bqs in bqss:
@@ -334,9 +350,11 @@ if __name__ == '__main__':
         # 测试轨迹的个数
         if j == 0:
             break
-    buffered_points = []
     compressed_points = []
     error_bound = 10
     bqs(error_bound)
+    count=0
     for point in compressed_points:
+        count+=1
         print(point.get_id())
+    print(count)

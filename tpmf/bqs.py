@@ -334,26 +334,43 @@ def bqs(deviation_thr):
 if __name__ == '__main__':
     # 读取轨迹数据
     tradata = []
-    points = []  # 数据流
-    # 文件目录路
-    path = r"F:\dataset\rawData\0"
-    file_list = os.listdir(path)
-    file_list.sort(key=lambda fn: os.path.getatime(path + "\\" + fn))
+    # 文件目录路径
+    raw_path = r"F:\dataset\rawData\0"
+    new_path = r"F:\dataset\bqsData\0"
+    file_list = os.listdir(raw_path)
+    file_list.sort(key=lambda x: x[10:-5])
     # 读取每个文件的轨迹数据
     for i in range(len(file_list)):
-        tradata.append(read(path, file_list[i]))
-    id = 0
+        tradata.append(read(raw_path, file_list[i]))
+    time_records = []
+    compression_ratios = []
+    error_bound = 10
+    total_time = 0
     for j in range(len(tradata)):
+        id = 0
+        points = []
         for point in tradata[j]:
             p = Point(id, point[0], point[1], point[2])
             points.append(p)
             id = id + 1
-        # 测试轨迹的个数
-        if j == 0:
-            break
-    compressed_points = []
-    error_bound = 10
-    bqs(error_bound)
+        compressed_points = []
+        # 传入参数：5:压缩比
+        start_time = time.clock()
+        bqs(error_bound)
+        end_time = time.clock()
+        compressed_points.append(points[-1])
+        time_records.append(end_time - start_time)
+        total_time += end_time - start_time
+        cmp_ratio = (1 - len(compressed_points) / len(points)) * 100
+        compression_ratios.append(cmp_ratio)
+        write_data.write(compressed_points, new_path, j)
+
+    print(total_time)
+    timepath = r"F:\dataset\bqsData\time0.csv"
+    compressRatio_path = r"F:\dataset\bqsData\numbers0.csv"
+    write_data.write_time(time_records, compressRatio_path)
+    write_data.write_compressionRatio(compression_ratios, compressRatio_path)
+
     compressed_points.append(points[-1])
     count = 0
     for point in compressed_points:

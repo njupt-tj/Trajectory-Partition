@@ -111,28 +111,48 @@ def squish(cmp_ratio, sed_error):
         min_priority = buffer_sed[min_index].get_sed()
 
 
+def get_pid(buffer_sed):
+    pids=[]
+    for pointwithSED in buffer_sed:
+        pids.append(pointwithSED.get_id())
+    return pids
+
 if __name__ == '__main__':
     # 读取轨迹数据
     tradata = []
-    points = []  # 数据流
     # 文件目录路径
-    path = r"F:\dataset\rawData\0"
-    file_list = os.listdir(path)
-    file_list.sort(key=lambda fn: os.path.getatime(path + "\\" + fn))
+    raw_path = r"F:\dataset\rawData\0"
+    new_path = r"F:\dataset\squishEData\0"
+    file_list = os.listdir(raw_path)
+    file_list.sort(key=lambda x: x[10:-5])
     # 读取每个文件的轨迹数据
     for i in range(len(file_list)):
-        tradata.append(read(path, file_list[i]))
-    id = 0
+        tradata.append(read(raw_path, file_list[i]))
+    time_records = []
+    compression_ratios = []
+    error_bound = 10
+    compression_ratio=5
+    total_time = 0
     for j in range(len(tradata)):
+        id = 0
+        points = []
         for point in tradata[j]:
             p = Point(id, point[0], point[1], point[2])
             points.append(p)
             id = id + 1
-        # 测试轨迹的个数
-        if j == 0:
-            break
-    # 传入参数：5:压缩比  10:sed误差
-    buffer_sed = []
-    squish(5, 10)
-    for pointwithSED in buffer_sed:
-        print(pointwithSED.get_id())
+        buffer_sed = []
+        start_time = time.clock()
+        squish(compression_ratio, error_bound)
+        end_time = time.clock()
+        time_records.append(end_time - start_time)
+        total_time += end_time - start_time
+        cmp_ratio = (1 - len(buffer_sed) / len(points)) * 100
+        compression_ratios.append(cmp_ratio)
+        compressed_pointsId=get_pid(buffer_sed)
+        write_data.write(points, compressed_pointsId, new_path, j)
+
+    print(total_time)
+    timepath = r"F:\dataset\squishEData\time0.csv"
+    compressRatio_path = r"F:\dataset\squishEData\numbers0.csv"
+    write_data.write_time(time_records, compressRatio_path)
+    write_data.write_compressionRatio(compression_ratios, compressRatio_path)

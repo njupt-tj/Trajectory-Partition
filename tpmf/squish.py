@@ -91,24 +91,37 @@ def squish(compression_ratio):
 if __name__ == '__main__':
     # 读取轨迹数据
     tradata = []
-    points = []  # 数据流
     # 文件目录路径
-    path = r"F:\dataset\rawData\0"
-    file_list = os.listdir(path)
+    raw_path = r"F:\dataset\rawData\0"
+    new_path = r"F:\dataset\squishData\0"
+    file_list = os.listdir(raw_path)
     file_list.sort(key=lambda x: x[10:-5])
     # 读取每个文件的轨迹数据
     for i in range(len(file_list)):
-        tradata.append(read(path, file_list[i]))
-    id = 0
+        tradata.append(read(raw_path, file_list[i]))
+    time_records = []
+    compression_ratios = []
+    compression_ratio=5
+    total_time=0
     for j in range(len(tradata)):
+        id = 0
+        points = []
         for point in tradata[j]:
             p = Point(id, point[0], point[1], point[2])
             points.append(p)
             id = id + 1
-        # 测试轨迹的个数
-        if j == 0:
-            break
-    # 传入参数：5:压缩比
-    result = squish(5)
-    for point in result:
-        print(point.get_id())
+        # 传入参数：5:压缩比
+        start_time = time.clock()
+        result = squish(compression_ratio)
+        end_time = time.clock()
+        time_records.append(end_time - start_time)
+        total_time+=end_time-start_time
+        cmp_ratio = (1 - len(result) / len(points)) * 100
+        compression_ratios.append(cmp_ratio)
+        write_data.write(result, new_path, j)
+
+    print(total_time)
+    timepath = r"F:\dataset\squishData\time0.csv"
+    compressRatio_path = r"F:\dataset\squishData\numbers0.csv"
+    write_data.write_time(time_records, compressRatio_path)
+    write_data.write_compressionRatio(compression_ratios, compressRatio_path)

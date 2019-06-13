@@ -1,9 +1,11 @@
 # -*- coding:utf-8 -*-
-import distances
-from point import Point
-import os
 import math
-from read_data import read
+import os
+import time
+
+import distances
+import write_data
+from point import Point
 
 '''
 One-Pass Error Bounded Trajectory Simplificatin
@@ -58,10 +60,14 @@ def get_active_point(start_point, cur_active_point, cur_line_segment, error_boun
                 flag = False
                 break;
             i += 1
+            if i >= len(points):
+                break
             R_i = LineSegment(start_point, points[i])
-        dis_i_la = distances.perpendicular_distance(cur_line_segment.get_start(), points[i], cur_line_segment.get_end())
-        if dis_i_la > error_bound / 2 and cur_line_segment.get_distance() > 0:
-            flag = False
+        if i < len(points):
+            dis_i_la = distances.perpendicular_distance(cur_line_segment.get_start(), points[i],
+                                                        cur_line_segment.get_end())
+            if dis_i_la > error_bound / 2 and cur_line_segment.get_distance() > 0:
+                flag = False
     if i == len(points):
         i = -1
     return i, flag
@@ -140,7 +146,6 @@ def operb(error_bound):
     e = s;
     cur_line_segment = LineSegment(points[s], points[e])
     a, flag = get_active_point(points[s], points[a], cur_line_segment, error_bound)
-    print(a)
     while a != -1 and points[a] != None:
         s = e
         cur_line_segment = LineSegment(points[s], points[s])
@@ -150,38 +155,53 @@ def operb(error_bound):
             cur_line_segment = fit_function(s, points[a], cur_line_segment, error_bound)
             e = a
             a, flag = get_active_point(points[s], points[a], cur_line_segment, error_bound)
-        compressed_points.append([s,e])
+        compressed_points.append([s, e])
+
+
+def process(compressed_points):
+    noduplicate_points = []
+    for presention in compressed_points:
+        if presention[0] == presention[1]:
+            continue
+        noduplicate_points.append(presention[0])
+    noduplicate_points.append(compressed_points[-1][1])
+    return noduplicate_points
 
 
 if __name__ == '__main__':
     # 读取轨迹数据
     tradata = []
-    points = []  # 数据流
-    # 文件目录路
-    path = r"F:\dataset\rawData\0"
-    file_list = os.listdir(path)
-    file_list.sort(key=lambda fn: os.path.getatime(path + "\\" + fn))
+    # 文件目录路径
+    raw_path = r"F:\dataset\rawData\0"
+    new_path = r"F:\dataset\operbData\0"
+    file_list = os.listdir(raw_path)
+    file_list.sort(key=lambda x: x[10:-5])
     # 读取每个文件的轨迹数据
     for i in range(len(file_list)):
-        tradata.append(read(path, file_list[i]))
-    id = 0
+        tradata.append(read(raw_path, file_list[i]))
+    time_records = []
+    compression_ratios = []
+    error_bound = 6
+    total_time = 0
     for j in range(len(tradata)):
+        id = 0
+        points = []
         for point in tradata[j]:
             p = Point(id, point[0], point[1], point[2])
             points.append(p)
             id = id + 1
-        # 测试轨迹的个数
-        if j == 0:
-            break
-    compressed_points = []
-    error_bound = 10
-    operb(error_bound)
-    nodup_points=[]
-    for presention in compressed_points:
-        if presention[0]==presention[1]:
-            continue
-        nodup_points.append(presention[0])
-    nodup_points.append(compressed_points[-1][1])
-    for point_id in nodup_points:
-        print(point_id)
-    print(len(nodup_points))
+        compressed_points = []
+        start_time = time.clock()
+        operb(error_bound)
+        end_time = time.clock()
+        noduplicate_points = process(compressed_points)
+        time_records.append(end_time - start_time)
+        total_time += end_time - start_time
+        compression_ratio = (1 - len(noduplicate_points) / len(points)) * 100
+        compression_ratios.append(compression_ratio)
+        write_data.write(points, noduplicate_points, new_path, j)
+
+    timepath = r"F:\dataset\operbData\time0.csv"
+    compressRatio_path = r"F:\dataset\operbData\numbers0.csv"
+    write_data.write_time(time_records, compressRatio_path)
+    write_data.write_compressionRatio(compression_ratios, compressRatio_path)

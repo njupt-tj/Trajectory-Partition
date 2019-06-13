@@ -181,7 +181,7 @@ if __name__ == '__main__':
         if presention[0]==presention[1]:
             continue
         nodup_points.append(presention[0])
-    nodup_points.append(compressed_points[len(compressed_points)-1][1])
+    nodup_points.append(compressed_points[-1][1])
     for point_id in nodup_points:
         print(point_id)
     print(len(nodup_points))

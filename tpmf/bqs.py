@@ -102,7 +102,7 @@ class BoundingLines:
 
     def min_max_angle(self, bqs):
         min_angle = 2 * math.pi
-        max_angle = -2 * math.pi
+        max_angle = 0
         min_angle_point = None
         max_angle_point = None
         for point in bqs:
@@ -354,8 +354,8 @@ if __name__ == '__main__':
     compressed_points = []
     error_bound = 10
     bqs(error_bound)
+    compressed_points.append(points[-1])
     count = 0
     for point in compressed_points:
         count += 1
         print(point.get_id())
-    print(count)

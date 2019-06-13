@@ -234,7 +234,7 @@ def get_quadrant(point):
 
 
 # 判断是否在同一个象限
-def is_not_same_quadrant(cur_linesegment, bqs):
+def is_same_quadrant(cur_linesegment, bqs):
     start_point = cur_linesegment.get_start()
     end_point = cur_linesegment.get_end()
     first_point = bqs[0]
@@ -255,11 +255,12 @@ def calc_deviation(origin_p, cur_linesegment, bqs):
     near_far_corner_distances = box.near_far_corner_distance(cur_linesegment)
     max_near_corner_disatnces = np.maximum(near_far_corner_distances[0], near_far_corner_distances[1])
     if (cur_linesegment_angle >= min_max_angles[0] and cur_linesegment_angle <= min_max_angles[2]) or \
-            (cur_linesegment_angle > min_max_angles[2] or cur_linesegment_angle < min_max_angles[0]):
+            (is_same_quadrant(cur_linesegment, bqs) and (
+                    cur_linesegment_angle > min_max_angles[2] or cur_linesegment_angle < min_max_angles[0])):
         d_lb = np.maximum(np.maximum(min_lower_dis, min_upper_dis), max_near_corner_disatnces)
         intersection_distances.sort()
         d_ub = intersection_distances[-1]
-    elif is_not_same_quadrant(cur_linesegment_angle, bqs):
+    elif is_same_quadrant(cur_linesegment_angle, bqs) == False:
         min_upper_dis = np.minimum(intersection_distances[2], intersection_distances[1])
         corners_distance = box.corner_distance(cur_linesegment)
         corners_distance.sort()
@@ -334,7 +335,7 @@ if __name__ == '__main__':
     # 读取轨迹数据
     tradata = []
     points = []  # 数据流
-    # 文件目录路径
+    # 文件目录路
     path = r"F:\dataset\rawData\0"
     file_list = os.listdir(path)
     file_list.sort(key=lambda fn: os.path.getatime(path + "\\" + fn))
@@ -353,8 +354,8 @@ if __name__ == '__main__':
     compressed_points = []
     error_bound = 10
     bqs(error_bound)
-    count=0
+    count = 0
     for point in compressed_points:
-        count+=1
+        count += 1
         print(point.get_id())
     print(count)

@@ -48,6 +48,8 @@ class PointWithSED:
 # 更新邻居节点的pi值
 def update(min_index, min_priority):
     buffer_sed[min_index - 1].set_pi(np.maximum(min_priority, buffer_sed[min_index - 1].get_pi()))
+    if min_index+1>=len(buffer_sed):
+        print("超出范围")
     buffer_sed[min_index + 1].set_pi(np.maximum(min_priority, buffer_sed[min_index + 1].get_pi()))
     if min_index - 2 >= 0:
         adjust_priority(min_index-2, min_index-1, min_index+1)
@@ -85,30 +87,34 @@ def squish(cmp_ratio, sed_error):
     size = len(points)
     capacity = int(size / cmp_ratio)  # 缓冲区大小
     i = 0
-    while i < size:
-        if (i / cmp_ratio) >= capacity:
-            capacity += 1
-        # 新来的点设为sed_error设为无穷大
-        buffer_sed.append(PointWithSED(i, float('inf'), 0))
-        # pi不是第一个点
-        if i > 0:
-            buffer_size = len(buffer_sed)
-            adjust_priority(buffer_size - 1, buffer_size - 2, buffer_size - 3)
-        # 此时，缓冲区满了
-        if len(buffer_sed) == capacity:
-            # 找到具有最小的优先级的点
-            min_index = find_mini_priority()
-            min_priority = buffer_sed[min_index].get_sed()
-            # 更新
-            update(min_index, min_priority)
-        i += 1
-    min_index = find_mini_priority()
-    min_priority = buffer_sed[min_index].get_sed()
-    # 未达到sed_error重复移除最小优先权的点
-    while (min_priority <= sed_error):
-        update(min_index, min_priority)
+    if capacity>2:
+        while i < size:
+            if (i / cmp_ratio) >= capacity:
+                capacity += 1
+            # 新来的点设为sed_error设为无穷大
+            buffer_sed.append(PointWithSED(i, float('inf'), 0))
+            # pi不是第一个点
+            if i > 0:
+                buffer_size = len(buffer_sed)
+                adjust_priority(buffer_size - 1, buffer_size - 2, buffer_size - 3)
+            # 此时，缓冲区满了
+            if len(buffer_sed) == capacity:
+                # 找到具有最小的优先级的点
+                min_index = find_mini_priority()
+                min_priority = buffer_sed[min_index].get_sed()
+                # 更新
+                update(min_index, min_priority)
+            i += 1
         min_index = find_mini_priority()
         min_priority = buffer_sed[min_index].get_sed()
+        # 未达到sed_error重复移除最小优先权的点
+        while (min_priority <= sed_error):
+            update(min_index, min_priority)
+            min_index = find_mini_priority()
+            min_priority = buffer_sed[min_index].get_sed()
+    else:
+        buffer_sed.append(PointWithSED(0,float('inf'),0))
+        buffer_sed.append(PointWithSED(size-1,float('inf'),0))
 
 
 def get_pid(buffer_sed):
@@ -149,10 +155,11 @@ if __name__ == '__main__':
         cmp_ratio = (1 - len(buffer_sed) / len(points)) * 100
         compression_ratios.append(cmp_ratio)
         compressed_pointsId=get_pid(buffer_sed)
-        write_data.write(points, compressed_pointsId, new_path, j)
+        #write_data.write(points, compressed_pointsId, new_path, j)
+        print(j)
 
     print(total_time)
-    timepath = r"F:\dataset\squishEData\time0.csv"
-    compressRatio_path = r"F:\dataset\squishEData\numbers0.csv"
-    write_data.write_time(time_records, compressRatio_path)
-    write_data.write_compressionRatio(compression_ratios, compressRatio_path)
+    # timepath = r"F:\dataset\squishEData\time0.csv"
+    # compressRatio_path = r"F:\dataset\squishEData\numbers0.csv"
+    # write_data.write_time(time_records, compressRatio_path)
+    # write_data.write_compressionRatio(compression_ratios, compressRatio_path)

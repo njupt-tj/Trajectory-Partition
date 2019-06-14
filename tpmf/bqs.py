@@ -107,10 +107,12 @@ class BoundingLines:
         max_angle_point = None
         for point in bqs:
             angle = distances.angle(self.__origin_p, point)
-            if angle < min_angle:
+            if angle==-1:
+                continue
+            if angle <= min_angle:
                 min_angle = angle
                 min_angle_point = point
-            if angle > max_angle:
+            if angle >= max_angle:
                 max_angle = angle
                 max_angle_point = point
         return [min_angle, min_angle_point, max_angle, max_angle_point]
@@ -260,7 +262,7 @@ def calc_deviation(origin_p, cur_linesegment, bqs):
         d_lb = np.maximum(np.maximum(min_lower_dis, min_upper_dis), max_near_corner_disatnces)
         intersection_distances.sort()
         d_ub = intersection_distances[-1]
-    elif is_same_quadrant(cur_linesegment_angle, bqs) == False:
+    elif is_same_quadrant(cur_linesegment, bqs) == False:
         min_upper_dis = np.minimum(intersection_distances[2], intersection_distances[1])
         corners_distance = box.corner_distance(cur_linesegment)
         corners_distance.sort()
@@ -325,7 +327,7 @@ def bqs(deviation_thr):
                     else:
                         buffered_points.append(points[e])
             else:
-                compressed_points.append(point[e])
+                compressed_points.append(points[e])
                 s = e
 
         i += 1
@@ -363,16 +365,11 @@ if __name__ == '__main__':
         total_time += end_time - start_time
         cmp_ratio = (1 - len(compressed_points) / len(points)) * 100
         compression_ratios.append(cmp_ratio)
-        write_data.write(compressed_points, new_path, j)
+        #write_data.write(compressed_points, new_path, j)
+        print(j)
 
     print(total_time)
-    timepath = r"F:\dataset\bqsData\time0.csv"
-    compressRatio_path = r"F:\dataset\bqsData\numbers0.csv"
-    write_data.write_time(time_records, compressRatio_path)
-    write_data.write_compressionRatio(compression_ratios, compressRatio_path)
-
-    compressed_points.append(points[-1])
-    count = 0
-    for point in compressed_points:
-        count += 1
-        print(point.get_id())
+    # timepath = r"F:\dataset\bqsData\time0.csv"
+    # compressRatio_path = r"F:\dataset\bqsData\numbers0.csv"
+    # write_data.write_time(time_records, compressRatio_path)
+    # write_data.write_compressionRatio(compression_ratios, compressRatio_path)

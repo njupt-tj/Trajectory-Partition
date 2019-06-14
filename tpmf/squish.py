@@ -44,7 +44,6 @@ class PointWithSED:
 def squish(compression_ratio):
     size = len(points)
     buffer_size = int(size / compression_ratio)  # 缓冲区大小
-    print(buffer_size)
     buffer_sed = PriorityQueue()
     compressed_points = []
     compressed_points.append(points[0])
@@ -120,6 +119,7 @@ if __name__ == '__main__':
         cmp_ratio = (1 - len(result) / len(points)) * 100
         compression_ratios.append(cmp_ratio)
         #write_data.write(result, new_path, j)
+        print(j)
 
     print(total_time)
     # timepath = r"F:\dataset\squishData\time0.csv"

@@ -68,7 +68,9 @@ def angle(start_point, end_point):
     x_diff = end_point.get_x() - start_point.get_x()
     y_diff = end_point.get_y() - start_point.get_y()
     sqre = math.sqrt(x_diff * x_diff + y_diff * y_diff)
-    if x_diff <= 0 and y_diff < 0:
+    if sqre == 0:
+        angle = -1
+    elif x_diff <= 0 and y_diff < 0:
         angle = math.pi + math.acos(-x_diff / sqre)
     elif x_diff > 0 and y_diff < 0:
         angle = 3 / 2 * math.pi + math.acos(x_diff / sqre)

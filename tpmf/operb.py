@@ -199,9 +199,11 @@ if __name__ == '__main__':
         total_time += end_time - start_time
         compression_ratio = (1 - len(noduplicate_points) / len(points)) * 100
         compression_ratios.append(compression_ratio)
-        write_data.write(points, noduplicate_points, new_path, j)
+        #write_data.write(points, noduplicate_points, new_path, j)
+        print(j)
 
-    timepath = r"F:\dataset\operbData\time0.csv"
-    compressRatio_path = r"F:\dataset\operbData\numbers0.csv"
-    write_data.write_time(time_records, compressRatio_path)
-    write_data.write_compressionRatio(compression_ratios, compressRatio_path)
+    print(total_time)
+    # timepath = r"F:\dataset\operbData\time0.csv"
+    # compressRatio_path = r"F:\dataset\operbData\numbers0.csv"
+    # write_data.write_time(time_records, compressRatio_path)
+    # write_data.write_compressionRatio(compression_ratios, compressRatio_path)

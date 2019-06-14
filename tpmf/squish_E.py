@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import numpy as np
 import os
-
+import time
 import distances
 from point import Point
 from read_data import read

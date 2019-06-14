@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import math
 import os
-
+import time
 import distances
 import numpy as np
 from point import Point

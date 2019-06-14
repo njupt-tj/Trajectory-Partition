@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import os
+import time
 from queue import PriorityQueue
 from queue import Queue
 
@@ -118,10 +119,10 @@ if __name__ == '__main__':
         total_time+=end_time-start_time
         cmp_ratio = (1 - len(result) / len(points)) * 100
         compression_ratios.append(cmp_ratio)
-        write_data.write(result, new_path, j)
+        #write_data.write(result, new_path, j)
 
     print(total_time)
-    timepath = r"F:\dataset\squishData\time0.csv"
-    compressRatio_path = r"F:\dataset\squishData\numbers0.csv"
-    write_data.write_time(time_records, compressRatio_path)
-    write_data.write_compressionRatio(compression_ratios, compressRatio_path)
+    # timepath = r"F:\dataset\squishData\time0.csv"
+    # compressRatio_path = r"F:\dataset\squishData\numbers0.csv"
+    # write_data.write_time(time_records, compressRatio_path)
+    # write_data.write_compressionRatio(compression_ratios, compressRatio_path)

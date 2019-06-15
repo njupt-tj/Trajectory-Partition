@@ -4,6 +4,7 @@ import os
 import time
 
 import distances
+from read_data import read
 import write_data
 from point import Point
 
@@ -172,8 +173,8 @@ if __name__ == '__main__':
     # 读取轨迹数据
     tradata = []
     # 文件目录路径
-    raw_path = r"F:\dataset\rawData\0"
-    new_path = r"F:\dataset\operbData\0"
+    raw_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\Data_4.0\9"
+    new_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\OPERB\operb_data\9"
     file_list = os.listdir(raw_path)
     file_list.sort(key=lambda x: x[10:-5])
     # 读取每个文件的轨迹数据
@@ -181,7 +182,7 @@ if __name__ == '__main__':
         tradata.append(read(raw_path, file_list[i]))
     time_records = []
     compression_ratios = []
-    error_bound = 6
+    error_bound = 10
     total_time = 0
     for j in range(len(tradata)):
         id = 0
@@ -199,11 +200,10 @@ if __name__ == '__main__':
         total_time += end_time - start_time
         compression_ratio = (1 - len(noduplicate_points) / len(points)) * 100
         compression_ratios.append(compression_ratio)
-        #write_data.write(points, noduplicate_points, new_path, j)
-        print(j)
+        write_data.write1(points, noduplicate_points, new_path, j)
 
     print(total_time)
-    # timepath = r"F:\dataset\operbData\time0.csv"
-    # compressRatio_path = r"F:\dataset\operbData\numbers0.csv"
-    # write_data.write_time(time_records, compressRatio_path)
-    # write_data.write_compressionRatio(compression_ratios, compressRatio_path)
+    timepath = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\OPERB\time\9.csv"
+    compressRatio_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\OPERB\cmp_ratio\9.csv"
+    write_data.write_time(time_records, timepath)
+    write_data.write_compressionRatio(compression_ratios, compressRatio_path)

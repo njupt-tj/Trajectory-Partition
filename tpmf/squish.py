@@ -7,6 +7,7 @@ from queue import Queue
 import distances
 from point import Point
 from read_data import read
+import write_data
 
 
 # 利用优先队列
@@ -101,8 +102,8 @@ if __name__ == '__main__':
     # 读取轨迹数据
     tradata = []
     # 文件目录路径
-    raw_path = r"F:\dataset\rawData\0"
-    new_path = r"F:\dataset\squishData\0"
+    raw_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\Data_4.0\2"
+    new_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\SQUISH\squish_data\9"
     file_list = os.listdir(raw_path)
     file_list.sort(key=lambda x: x[10:-5])
     # 读取每个文件的轨迹数据
@@ -127,11 +128,10 @@ if __name__ == '__main__':
         total_time += end_time - start_time
         cmp_ratio = (1 - len(result) / len(points)) * 100
         compression_ratios.append(cmp_ratio)
-        # write_data.write(result, new_path, j)
-        print(j)
+        #write_data.write(result, new_path, j)
 
     print(total_time)
-    # timepath = r"F:\dataset\squishData\time0.csv"
-    # compressRatio_path = r"F:\dataset\squishData\numbers0.csv"
-    # write_data.write_time(time_records, compressRatio_path)
-    # write_data.write_compressionRatio(compression_ratios, compressRatio_path)
+    timepath = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\SQUISH\time\2.csv"
+    # = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\SQUISH\cmp_ratio\9.csv"
+    write_data.write_time(time_records, timepath)
+    #write_data.write_compressionRatio(compression_ratios, compressRatio_path)

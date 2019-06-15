@@ -3,6 +3,7 @@ import math
 import os
 import time
 import distances
+import write_data
 import numpy as np
 from point import Point
 from read_data import read
@@ -107,8 +108,10 @@ class BoundingLines:
         max_angle_point = None
         for point in bqs:
             angle = distances.angle(self.__origin_p, point)
-            if angle==-1:
-                continue
+            if angle == -1:
+                x=point.get_x()
+                point.set_x(x+0.001)
+                angle=0
             if angle <= min_angle:
                 min_angle = angle
                 min_angle_point = point
@@ -337,8 +340,8 @@ if __name__ == '__main__':
     # 读取轨迹数据
     tradata = []
     # 文件目录路径
-    raw_path = r"F:\dataset\rawData\0"
-    new_path = r"F:\dataset\bqsData\0"
+    raw_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\Data_4.0\7"
+    new_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\BQS\bqs_data\1"
     file_list = os.listdir(raw_path)
     file_list.sort(key=lambda x: x[10:-5])
     # 读取每个文件的轨迹数据
@@ -366,10 +369,9 @@ if __name__ == '__main__':
         cmp_ratio = (1 - len(compressed_points) / len(points)) * 100
         compression_ratios.append(cmp_ratio)
         #write_data.write(compressed_points, new_path, j)
-        print(j)
 
     print(total_time)
-    # timepath = r"F:\dataset\bqsData\time0.csv"
-    # compressRatio_path = r"F:\dataset\bqsData\numbers0.csv"
-    # write_data.write_time(time_records, compressRatio_path)
-    # write_data.write_compressionRatio(compression_ratios, compressRatio_path)
+    timepath = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\BQS\time\7.csv"
+    #compressRatio_path = r"C:\Users\TJ\Desktop\Dataset\Geolife Trajectories 1.3\BQS\cmp_ratio\0.csv"
+    write_data.write_time(time_records, timepath)
+    #write_data.write_compressionRatio(compression_ratios, compressRatio_path)
